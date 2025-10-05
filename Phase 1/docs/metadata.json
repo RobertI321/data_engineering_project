@@ -1,0 +1,150 @@
+{
+  "datasets": {
+    "crime_dataset": {
+      "description": "Individual crime and anti-social behaviour incidents, updated monthly.",
+      "columns": [
+        {
+          "name": "Crime_ID",
+          "type": "string",
+          "description": "Unique identifier for the crime."
+        },
+        {
+          "name": "Month",
+          "type": "string",
+          "description": "Year and month of the crime."
+        },
+        {
+          "name": "Reported_by",
+          "type": "string",
+          "description": "The force that provided the data about the crime."
+        },
+        {
+          "name": "Falls_within",
+          "type": "string",
+          "description": "The force in whose jurisdiction the crime occurred (same as Reported_by)."
+        },
+        {
+          "name": "Longitude",
+          "type": "real",
+          "description": "Longitude coordinate of the approximate crime location."
+        },
+        {
+          "name": "Latitude",
+          "type": "real",
+          "description": "Latitude coordinate of the approximate crime location."
+        },
+        {
+          "name": "Location",
+          "type": "string",
+          "description": "Approximate location of crime at street level."
+        },
+        {
+          "name": "LSOA_code",
+          "type": "string",
+          "description": "Lower Layer Super Output Area code of the anonymised point."
+        },
+        {
+          "name": "LSOA_name",
+          "type": "string",
+          "description": "Lower Layer Super Output Area name of the anonymised point."
+        },
+        {
+          "name": "Crime_type",
+          "type": "string",
+          "description": "Category of the crime."
+        },
+        {
+          "name": "Last_outcome_category",
+          "type": "string",
+          "description": "Most recent outcome associated with the crime."
+        },
+        {
+          "name": "Context",
+          "type": "string",
+          "description": "Optional field for forces to provide additional human-readable data (often empty)."
+        }
+      ]
+    },
+    "stop_and_search_dataset": {
+      "description": "Individual stop and search records, updated monthly.",
+      "columns": [
+        {
+          "name": "Type",
+          "type": "string",
+          "description": "Subject of the search (category)."
+        },
+        {
+          "name": "Date",
+          "type": "datetime",
+          "description": "Date and time of the stop-and-search event (time may default to 00:00:00)."
+        },
+        {
+          "name": "Part_of_a_policing_operation",
+          "type": "boolean",
+          "description": "Whether the stop-and-search was part of a policing operation."
+        },
+        {
+          "name": "Policing_operation",
+          "type": "string",
+          "description": "The name of the operation (often empty)."
+        },
+        {
+          "name": "Latitude",
+          "type": "real",
+          "description": "Latitude coordinate of the approximate stop-and-search location."
+        },
+        {
+          "name": "Longitude",
+          "type": "real",
+          "description": "Longitude coordinate of the approximate stop-and-search location."
+        },
+        {
+          "name": "Gender",
+          "type": "string",
+          "description": "Gender of the person stopped."
+        },
+        {
+          "name": "Age_range",
+          "type": "string",
+          "description": "Age range of the person stopped."
+        },
+        {
+          "name": "Self_defined_ethnicity",
+          "type": "string",
+          "description": "Self-defined ethnicity of the person stopped."
+        },
+        {
+          "name": "Officer_defined_ethnicity",
+          "type": "string",
+          "description": "Officer-defined ethnicity of the person stopped."
+        },
+        {
+          "name": "Legislation",
+          "type": "string",
+          "description": "The legal power used for the stop-and-search."
+        },
+        {
+          "name": "Object_of_search",
+          "type": "string",
+          "description": "Reason for carrying out the stop-and-search."
+        },
+        {
+          "name": "Outcome",
+          "type": "string",
+          "description": "The outcome of the stop."
+        },
+        {
+          "name": "Outcome_linked_to_object_of_search",
+          "type": "boolean",
+          "description": "Whether the outcome was related to the reason for the stop (nullable)."
+        },
+        {
+          "name": "Removal_of_more_than_outer_clothing",
+          "type": "boolean",
+          "description": "Whether more than outer clothing was removed during the search (nullable)."
+        }
+      ]
+    }
+  },
+  "notes": "CSV and API data structures may differ slightly. API datasets can include additional variables not listed here, and may omit some listed ones."
+}
