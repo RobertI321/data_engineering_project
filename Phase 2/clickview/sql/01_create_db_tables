@@ -1,0 +1,88 @@
+DROP DATABASE IF EXISTS ukpolice;
+
+CREATE DATABASE ukpolice;
+
+-- ========== Dimensions ==========
+CREATE TABLE ukpolice.DimDate (
+    DateKey     UInt32,
+    FullDate    Date,
+    Year        UInt16,
+    Month       UInt8,
+    Day         UInt8,
+    Season      String,
+    Quarter     UInt8,
+    MonthName   String,
+    WeekDay     String,
+    WeekdayType String,
+    Holiday     Bool
+) ENGINE = MergeTree
+ORDER BY (DateKey);
+
+CREATE TABLE ukpolice.DimLocation (
+    LocationKey         UInt16,  -- surrogate key (unique per version)
+    LocationID          UInt16,  -- stable business key
+    LSOACode            String,
+    LSOAName            String,
+    LocationDescription String,
+    Latitude            Decimal,
+    Longitude           Decimal
+) ENGINE = MergeTree
+ORDER BY (LocationKey);
+
+CREATE TABLE ukpolice.DimCrimeOutcome (
+    CrimeOutcomeKey UInt8,
+    OutcomeName     String,
+    IsResolved      Bool
+) ENGINE = MergeTree
+ORDER BY (CrimeOutcomeKey);
+
+CREATE TABLE ukpolice.DimDemographics (
+    DemographicsKey           UInt8,
+    Gender                    String  
+    AgeRange                  String,
+    EtchinicitySelfDefined    String,
+    EtchinicityOfficerDefined String
+) ENGINE = MergeTree
+ORDER BY (DemographicsKey);
+
+CREATE TABLE ukpolice.DimSearchOutcome (
+    SearchOutcomeKey UInt8,
+    OutcomeName      String,
+    IsSuccessful     Bool
+) ENGINE = MergeTree
+ORDER BY (SearchOutcomeKey);
+
+CREATE TABLE ukpolice.DimSearchDetail (
+    SearchDetailKey UInt8,
+    SearchType      String,
+    LegislationUsed String,
+    ObjectOfSearch  String
+) ENGINE = MergeTree
+ORDER BY (SearchDetailKey);
+
+-- ========== Facts ==========
+CREATE TABLE ukpolice.FactCrime (
+    CrimeID         UInt64,
+    Month           String,
+    LocationKey     UInt16,
+    PoliceForce     String,
+    CrimeType       String,
+    CrimeOutcomeKey UInt8,
+    IncidentCount   UInt8    
+) ENGINE = MergeTree
+ORDER BY (Month, PoliceForce, LocationKey);
+
+CREATE TABLE ukpolice.FactStopSearch (
+    StopID           UInt64,
+    DateKey          DateKey,
+    FullDate         Date,   -- denormalize FullDate onto fact for partitioning and fast time filtering
+    --LocationKey    UInt16,
+    PoliceForce      String,
+    DemographicsKey  UInt8,
+    SearchOutcomeKey UInt8,
+    SearchDetailKey  UInt8,
+    IsLinkedToObject Bool,
+    StopCount        UInt8
+) ENGINE = MergeTree
+PARTITION BY toYYYYMM(FullDate)
+ORDER BY (FullDate, PoliceForce);
