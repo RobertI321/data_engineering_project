@@ -1,0 +1,10 @@
+{
+  "bronze_crime_raw": {
+    "query": "SELECT * FROM crimes;",
+    "schema": "CREATE TABLE IF NOT EXISTS bronze.bronze_crime_raw (\n  crime_id String,\n  month String,\n  reported_by String,\n  falls_within String,\n  longitude Float64,\n  latitude Float64,\n  location String,\n  lsoa_code String,\n  lsoa_name String,\n  crime_type String,\n  last_outcome_category String,\n  context Float64,\n  data_month String,\n  _ingest_ts DateTime DEFAULT now()\n) ENGINE = MergeTree() PARTITION BY data_month ORDER BY crime_id"
+  },
+  "bronze_stopsearch_raw": {
+    "query": "SELECT * FROM stop_search;",
+    "schema": "CREATE TABLE IF NOT EXISTS bronze.bronze_stopsearch_raw (\n  type String,\n  date String,\n  part_of_a_policing_operation String,\n  policing_operation Float64,\n  latitude Float64,\n  longitude Float64,\n  gender String,\n  age_range String,\n  self_defined_ethnicity String,\n  officer_defined_ethnicity String,\n  legislation String,\n  object_of_search String,\n  outcome String,\n  outcome_linked_to_object_of_search String,\n  removal_of_more_than_just_outer_clothing String,\n  data_month String,\n  _ingest_ts DateTime DEFAULT now()\n) ENGINE = MergeTree() PARTITION BY data_month ORDER BY date"
+  }
+}

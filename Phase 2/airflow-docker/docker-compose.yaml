@@ -1,0 +1,256 @@
+# ===============================================================
+# Docker Compose configuration for Apache Airflow + Postgres
+# ===============================================================
+# version: specifies the Compose file format version.
+# Using 3.9 gives access to the latest Compose features.
+
+# ===============================================================
+# SHARED CONFIGURATION (YAML Anchor Block)
+# ===============================================================
+# This section is *not* a container itself — it's a reusable block.
+# "x-airflow-common" is a custom YAML extension that stores settings
+# shared by multiple services (like the scheduler, webserver, init).
+# The "&airflow-common" creates an "anchor" (named config block).
+# Later, we can import it into services using "<<: *airflow-common"
+# (the asterisk * references the anchor name defined with &).
+
+x-airflow-common:
+  &airflow-common
+
+  # ---------------------
+  # IMAGE
+  # ---------------------
+  # This tells Docker which image to use for Airflow containers.
+  image: apache/airflow:2.9.2  #Airflow image from Docker Hub
+
+  # ---------------------
+  # ENVIRONMENT VARIABLES
+  # ---------------------
+  # These are environment variables available to all services that use this block.
+  environment:
+    &airflow-common-env  # Another named anchor, in case we want to reuse just this env block.
+
+    # Airflow uses this variable to decide *how* to execute tasks.
+    # - SequentialExecutor = one task at a time (for testing)
+    # - LocalExecutor = multiple tasks in parallel (recommended for local setups)
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+
+    # When you create a new DAG file, it starts in "paused" mode by default.
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+
+    # Disables loading Airflow's example DAGs (keeps your UI clean).
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+    # Connection string for the Airflow metadata database (stores DAG runs, logs, etc.)
+    # Format: postgresql+psycopg2://user:password@host:port/database
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+
+    # Define another DB connection (your project’s own data DB).
+    # Airflow can use this connection to extract/load data in your ETL.
+    AIRFLOW_CONN_PROJECT_DB: postgresql+psycopg2://project_user:project_pass@project-db:5432/project_db
+
+    # Clickhouse connection
+    AIRFLOW_CONN_CLICKHOUSE_DB: clickhouse+http://default:clickhouse_pass@clickhouse-project2:8123/default
+
+
+    _PIP_ADDITIONAL_REQUIREMENTS: >
+      pandas
+      psycopg2-binary
+      clickhouse-connect
+  # ---------------------
+  # VOLUME MOUNTS
+  # ---------------------
+  # These lines connect your *local folders* to *paths inside the container*.
+  # This way, you can edit code locally and Airflow will see the changes immediately.
+  volumes:
+    - ./dags:/opt/airflow/dags          # Your DAG Python scripts (visible inside Airflow)
+    - ./logs:/opt/airflow/logs          # Logs written by Airflow tasks
+    - ./data:/opt/airflow/data
+    - ./configs:/opt/airflow/configs      # Optional folder for any data files you need
+
+  # Sets the Linux user ID (on the host machine) so files created by Airflow
+  # have the same ownership as your local user instead of root.
+  user: "${AIRFLOW_UID:-50000}:0"
+
+  # ---------------------
+  # DEPENDENCY ORDER
+  # ---------------------
+  # "depends_on" defines which containers must be running before this one starts.
+  # The "condition: service_healthy" ensures the dependency is *ready*, not just started.
+  depends_on:
+    airflow-db:
+      condition: service_healthy
+    project-db:
+      condition: service_healthy
+
+
+# ===============================================================
+# SERVICES (actual containers that will be started)
+# ===============================================================
+services:
+
+  # ---------------------------------------------------------------
+  # AIRFLOW METADATA DATABASE
+  # ---------------------------------------------------------------
+  # This is the internal Postgres database Airflow uses to store its metadata:
+  # DAGs, task states, user accounts, etc.
+  airflow-db:
+    image: postgres:16.4               # Use the official PostgreSQL image
+    container_name: airflow-db
+    environment:
+      POSTGRES_USER: airflow           # Username for Airflow DB
+      POSTGRES_PASSWORD: airflow       # Password
+      POSTGRES_DB: airflow             # Database name
+    ports:
+      - "5432:5432"                    # Expose the DB on localhost:5432 (optional, for inspection)
+    volumes:
+      - airflow-db-volume:/var/lib/postgresql/data  # Persistent storage for DB data
+    healthcheck:                       # Used by "depends_on" to know when DB is ready
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 10s
+      retries: 5
+    restart: always                    # Automatically restart if it crashes
+
+  # ---------------------------------------------------------------
+  #  PROJECT DATABASE (for your ETL data)
+  # ---------------------------------------------------------------
+  # This is a second Postgres instance — for your project data,
+  # not for Airflow metadata.
+  project-db:
+    image: postgres:16.4
+    container_name: project-db
+    environment:
+      POSTGRES_USER: project_user      # Username for your project DB
+      POSTGRES_PASSWORD: project_pass
+      POSTGRES_DB: project_db
+    ports:
+      - "5433:5432"                    # Exposed on a different port to avoid conflicts
+    volumes:
+      - project-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U project_user -d project_db"]
+      interval: 10s
+      retries: 5
+    restart: always
+
+  # ---------------------------------------------------------------
+  # PGADMIN (Database UI)
+  # ---------------------------------------------------------------
+  # pgAdmin lets you view and edit both databases (Airflow + project)
+  # through a web interface.
+  pgadmin:
+    image: elestio/pgadmin:REL-8_10
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      CSRF_ENABLED: "False"
+    ports:
+      - "5050:80"                      # Accessible at http://localhost:5050
+    depends_on:
+      - airflow-db
+      - project-db
+
+  # ---------------------------------------------------------------
+  # AIRFLOW WEBSERVER (UI)
+  # ---------------------------------------------------------------
+  # The main Airflow UI, accessible in your browser at localhost:8080.
+  airflow-webserver:
+    <<: *airflow-common                # Import everything from x-airflow-common block above
+    container_name: airflow-webserver
+    command: webserver                 # Tells Airflow which process to start inside the container
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      - airflow-init                   # Wait until Airflow DB and user setup are complete
+      - airflow-db
+      - project-db
+
+  # ---------------------------------------------------------------
+  # AIRFLOW SCHEDULER
+  # ---------------------------------------------------------------
+  # The heart of Airflow — it monitors DAGs and triggers tasks.
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow-scheduler
+    command: scheduler                 # Start the scheduler process
+    restart: always
+    depends_on:
+      - airflow-init
+      - airflow-db
+      - project-db
+
+  # ---------------------------------------------------------------
+  # AIRFLOW INIT (Setup Step)
+  # ---------------------------------------------------------------
+  # This runs only once to initialize Airflow’s metadata database and
+  # create the admin account.
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow-init
+    entrypoint: /bin/bash              # Run bash instead of Airflow directly
+    command:
+      - -c
+      - |
+        # Create folders (in case they don’t exist)
+        mkdir -p /opt/airflow/{dags,logs,plugins,config}
+
+        # Initialize the Airflow metadata database (creates tables)
+        airflow db init
+
+        # Create an admin user for Airflow UI
+        airflow users create \
+          --username airflow \
+          --password airflow \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com
+    restart: "no"                      # Run once, then stop (doesn’t need to restart)
+
+  clickhouse-server:
+    image: clickhouse/clickhouse-server:25.9
+    container_name: clickhouse-project2
+
+    environment:
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: clickhouse_pass
+      CLICKHOUSE_DB: default
+    ports:
+      - "8123:8123" # HTTP interface
+      - "9000:9000" # Native client interface
+    volumes:
+      # This persists our database data on our local machine.
+      - clickhouse-data-volume:/var/lib/clickhouse/
+      # This makes our local CSVs available inside the container.
+      - ./data:/var/lib/clickhouse/user_files
+      # mount SQL to run them via client
+      - ./sql:/sql
+    # Best practice from official docs to prevent "too many open files" errors.
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    depends_on:
+      - airflow-db
+      - project-db 
+      - airflow-webserver
+      - airflow-scheduler
+    
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8123/ping"]
+      interval: 10s
+      retries: 5
+
+# ===============================================================
+# VOLUMES (persistent storage)
+# ===============================================================
+# These named volumes live inside Docker’s internal storage.
+# They preserve your database data even if containers are deleted.
+# They are NOT visible as folders in your local project directory.
+volumes:
+  airflow-db-volume:   # Stores Airflow metadata database files
+  project-db-volume:   # Stores your project data DB files
+  clickhouse-data-volume:    # Stores Clickhouse database files
