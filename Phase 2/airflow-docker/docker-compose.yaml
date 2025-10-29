@@ -166,6 +166,10 @@ services:
       - airflow-init                   # Wait until Airflow DB and user setup are complete
       - airflow-db
       - project-db
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ../dbt:/opt/airflow/dbt
 
   # ---------------------------------------------------------------
   # AIRFLOW SCHEDULER
@@ -180,6 +184,10 @@ services:
       - airflow-init
       - airflow-db
       - project-db
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ../dbt:/opt/airflow/dbt
 
   # ---------------------------------------------------------------
   # AIRFLOW INIT (Setup Step)

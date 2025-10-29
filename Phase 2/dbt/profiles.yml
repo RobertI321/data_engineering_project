@@ -1,0 +1,12 @@
+ukpolice_project:
+  target: dev
+  outputs:
+    dev:
+      type: clickhouse
+      host: clickhouse-project2
+      port: 8123
+      user: default
+      password: clickhouse_pass
+      schema: ukpolice
+      secure: false
+      threads: 4

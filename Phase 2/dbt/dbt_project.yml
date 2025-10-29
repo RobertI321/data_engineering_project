@@ -1,0 +1,17 @@
+name: ukpolice_project
+version: "1.0.0"
+profile: ukpolice_project  # must match the top key in profiles.yml
+model-paths: ["models"]
+target-path: "target"
+clean-targets: ["target"]
+
+models:
+  ukpolice_project:
+    silver: 
+      +schema: silver
+      +materialized: view
+      +tags: ["silver"]
+    gold:
+      +schema: gold
+      +materialized: table
+      +tags: ["gold"]
