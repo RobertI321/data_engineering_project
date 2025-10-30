@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
 from datetime import datetime
 import psycopg2
 from clickhouse_connect import get_client
@@ -59,7 +60,7 @@ def load_to_clickhouse(table_name, schema_sql, **context):
     df = pd.read_csv(file_path)
 
     print("DATAFRAME DF TYPES:", df.dtypes)
-    print("CLICKHOUSE TABLE SCHEMA:", client.command("DESCRIBE TABLE bronze.bronze_crime_raw"))
+    print("CLICKHOUSE TABLE SCHEMA:", client.command(f"DESCRIBE TABLE bronze.{table_name}"))
 
     # Add full table name with schema prefix
     full_table_name = f"bronze.{table_name}"
@@ -70,9 +71,10 @@ def load_to_clickhouse(table_name, schema_sql, **context):
 
 
 # Idempotency: remove rows for the same data_month before reloading
-    months = df['data_month'].unique().tolist()
-    for month in months:
-        client.command(f"ALTER TABLE {full_table_name} DELETE WHERE data_month = '{month}'")
+    if "data_month" in df.columns:
+        months = df['data_month'].unique().tolist()
+        for month in months:
+            client.command(f"ALTER TABLE {full_table_name} DELETE WHERE data_month = '{month}'")
 
     
 
@@ -119,3 +121,12 @@ with DAG(
         )
 
         extract >> load
+
+    run_dbt = BashOperator(
+        task_id="run_dbt_models",
+        bash_command="cd /opt/airflow/dbt && dbt run && dbt test",
+    )
+
+    # Every load → run dbt
+    for table_name in table_configs.keys():
+        dag.get_task(f"load_{table_name}") >> run_dbt

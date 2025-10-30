@@ -57,6 +57,8 @@ x-airflow-common:
       pandas
       psycopg2-binary
       clickhouse-connect
+      dbt-core
+      dbt-clickhouse
   # ---------------------
   # VOLUME MOUNTS
   # ---------------------
@@ -169,6 +171,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
+      - ./configs:/opt/airflow/configs
       - ../dbt:/opt/airflow/dbt
 
   # ---------------------------------------------------------------
@@ -178,7 +181,7 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     container_name: airflow-scheduler
-    command: scheduler                 # Start the scheduler process
+    command: scheduler               # Start the scheduler process
     restart: always
     depends_on:
       - airflow-init
@@ -187,6 +190,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
+      - ./configs:/opt/airflow/configs
       - ../dbt:/opt/airflow/dbt
 
   # ---------------------------------------------------------------
