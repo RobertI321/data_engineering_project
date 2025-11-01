@@ -45,7 +45,7 @@ Phase 2/
 |    ├── models/
 |    ├── dbt_project.yml
 |    └── profiles.yml
-├── images/
+└── images/
     └── airflow_dags.png
 ```
 ---
