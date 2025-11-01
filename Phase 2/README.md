@@ -33,7 +33,7 @@ The ingested raw data will be loaded into Clickhouse Bronze layer. The Silver la
 ---
 
 ## Project structure
-```bash
+```text
 Phase 2/
 ├── .env
 ├── .gitignore
