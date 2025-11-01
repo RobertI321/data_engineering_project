@@ -62,7 +62,7 @@ Step-by-step instructions to get the project running locally.
 
 > :heavy_check_mark: All login credentials are in .env file.
 
-**1. Create a project folder locally** to clone the Git repository
+**1. Create a project folder locally** to clone the Git repository (e.g., data_engineering_project)
 
 **2. Navigate into the project folder and clone the repository**:
 
@@ -71,13 +71,17 @@ cd data_engineering_project
 
 git clone https://github.com/RobertI321/data_engineering_project.git
 ```
-**3. Start the services:**
+**3. Start the services** using "docker-compose.yaml" in the airflow-docker folder:
 > :warning: Make sure that Docker is running before starting the project.
 ```bash
+cd "data_engineering_project/Phase 2/airflow-docker"
 docker compose up -d
 ```
-**4. Connect to Airflow UI:**
+**4. Make new server in pgAdmin:**
+1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
+2. Create a new server
 
+**5. Connect to Airflow UI:**
 1. Access Airflow at [http://localhost:8080](http://localhost:8080)
 2. To ingest raw data into the staging layer in the Postgres database, run the DAG **police_data_ingestion**.
 3. To move data into the Clickhouse Bronze layer, run the DAG **move_data_to_clickhouse**.
