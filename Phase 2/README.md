@@ -94,7 +94,7 @@ docker compose up -d
 2. To ingest raw data into the staging layer in the Postgres database, run the DAG **police_data_ingestion**.
 3. To move data into the Clickhouse Bronze layer, run the DAG **move_data_to_clickhouse**.
 
-**6. **
+**6.**
 1. 
 ---
 
