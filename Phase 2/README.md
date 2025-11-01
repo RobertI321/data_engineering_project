@@ -4,7 +4,7 @@ In this phase, we implement a working data pipeline that ingests, transforms, an
 The project uses the following technologies:
 - **Apache Airflow** to orchestrate and schedule data pipeline.
 - **Clickhouse** for analytical storage.
-- **dbt (Data Build Tool)** for making data transformations.
+- **dbt** for making data transformations.
 - **Docker** to containerize services and ensure the environment is consistent and reproducible across different machines.
 
 The goal is to build an automated pipeline that ensures data is clean, transformed, and available for analytics.
@@ -36,14 +36,17 @@ The ingested raw data will be loaded into Clickhouse Bronze layer. The Silver la
 ```bash
 Phase 2/
 ├── .env
+├── .gitignore
 ├── airflow-docker/
 |   ├── configs
 │   ├── dags/
 │   └── docker-compose.yaml
-└── dbt/
-    ├── models/
-    ├── dbt_project.yml
-    └── profiles.yml
+├── dbt/
+|    ├── models/
+|    ├── dbt_project.yml
+|    └── profiles.yml
+├── images/
+    └── airflow_dags.png
 ```
 ---
 
@@ -77,21 +80,31 @@ git clone https://github.com/RobertI321/data_engineering_project.git
 cd "data_engineering_project/Phase 2/airflow-docker"
 docker compose up -d
 ```
-**4. Make new server in pgAdmin:**
+**4. Connect to pgAdmin** and create a new server:
 1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
-2. Create a new server
-3. ...
+2. Register a new server
+    - Name: server
+    - Host name: project-db
+    - Port: 5432
+    - Maintenace databse: project_db
+    - Username and password: in .env file
 
 **5. Connect to Airflow UI:**
 1. Access Airflow at [http://localhost:8080](http://localhost:8080)
 2. To ingest raw data into the staging layer in the Postgres database, run the DAG **police_data_ingestion**.
 3. To move data into the Clickhouse Bronze layer, run the DAG **move_data_to_clickhouse**.
+
+**6. **
+1. 
 ---
 
 ## Airflow DAGs
 
-screenshots, etc
+The DAGs can be managed through the Airflow Web UI:
 
+![Airflow DAGs](images/airflow_dags.png)
+
+...
 
 ## Analytical queries
 
