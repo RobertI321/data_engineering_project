@@ -1,0 +1,37 @@
+[2025-10-29T15:50:45.012+0000] {local_task_job_runner.py:120} INFO - ::group::Pre task execution logs
+[2025-10-29T15:50:45.080+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: move_data_to_clickhouse.load_bronze_stopsearch_raw manual__2025-10-29T15:50:40.383544+00:00 [queued]>
+[2025-10-29T15:50:45.099+0000] {taskinstance.py:2076} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: move_data_to_clickhouse.load_bronze_stopsearch_raw manual__2025-10-29T15:50:40.383544+00:00 [queued]>
+[2025-10-29T15:50:45.100+0000] {taskinstance.py:2306} INFO - Starting attempt 1 of 1
+[2025-10-29T15:50:45.126+0000] {taskinstance.py:2330} INFO - Executing <Task(PythonOperator): load_bronze_stopsearch_raw> on 2025-10-29 15:50:40.383544+00:00
+[2025-10-29T15:50:45.148+0000] {standard_task_runner.py:90} INFO - Running: ['***', 'tasks', 'run', 'move_data_to_clickhouse', 'load_bronze_stopsearch_raw', 'manual__2025-10-29T15:50:40.383544+00:00', '--job-id', '5', '--raw', '--subdir', 'DAGS_FOLDER/etl_clickhouse.py', '--cfg-path', '/tmp/tmphq1a7m9a']
+[2025-10-29T15:50:45.152+0000] {standard_task_runner.py:91} INFO - Job 5: Subtask load_bronze_stopsearch_raw
+[2025-10-29T15:50:45.153+0000] {logging_mixin.py:188} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:61 DeprecationWarning: This process (pid=987) is multi-threaded, use of fork() may lead to deadlocks in the child.
+[2025-10-29T15:50:45.154+0000] {standard_task_runner.py:63} INFO - Started process 999 to run task
+[2025-10-29T15:50:45.278+0000] {task_command.py:426} INFO - Running <TaskInstance: move_data_to_clickhouse.load_bronze_stopsearch_raw manual__2025-10-29T15:50:40.383544+00:00 [running]> on host f95ea7d4b7e5
+[2025-10-29T15:50:45.866+0000] {taskinstance.py:2648} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='move_data_to_clickhouse' AIRFLOW_CTX_TASK_ID='load_bronze_stopsearch_raw' AIRFLOW_CTX_EXECUTION_DATE='2025-10-29T15:50:40.383544+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-29T15:50:40.383544+00:00'
+[2025-10-29T15:50:45.867+0000] {taskinstance.py:430} INFO - ::endgroup::
+[2025-10-29T15:50:46.079+0000] {logging_mixin.py:188} INFO - DATAFRAME DF TYPES: type                                         object
+date                                         object
+part_of_a_policing_operation                 object
+policing_operation                          float64
+latitude                                    float64
+longitude                                   float64
+gender                                       object
+age_range                                    object
+self_defined_ethnicity                       object
+officer_defined_ethnicity                    object
+legislation                                  object
+object_of_search                             object
+outcome                                      object
+outcome_linked_to_object_of_search           object
+removal_of_more_than_just_outer_clothing     object
+data_month                                   object
+dtype: object
+[2025-10-29T15:50:46.084+0000] {logging_mixin.py:188} INFO - CLICKHOUSE TABLE SCHEMA: ['crime_id', 'String', '', '', '', '', '\nmonth', 'String', '', '', '', '', '\nreported_by', 'String', '', '', '', '', '\nfalls_within', 'String', '', '', '', '', '\nlongitude', 'Float64', '', '', '', '', '\nlatitude', 'Float64', '', '', '', '', '\nlocation', 'String', '', '', '', '', '\nlsoa_code', 'String', '', '', '', '', '\nlsoa_name', 'String', '', '', '', '', '\ncrime_type', 'String', '', '', '', '', '\nlast_outcome_category', 'String', '', '', '', '', '\ncontext', 'Float64', '', '', '', '', '\ndata_month', 'String', '', '', '', '', '\n_ingest_ts', 'DateTime', 'DEFAULT', 'now()', '', '', '']
+[2025-10-29T15:50:46.143+0000] {logging_mixin.py:188} INFO - Loaded 186 rows into Clickhouse table 'bronze.bronze_stopsearch_raw'
+[2025-10-29T15:50:46.144+0000] {python.py:237} INFO - Done. Returned value was: None
+[2025-10-29T15:50:46.144+0000] {taskinstance.py:441} INFO - ::group::Post task execution logs
+[2025-10-29T15:50:46.161+0000] {taskinstance.py:1206} INFO - Marking task as SUCCESS. dag_id=move_data_to_clickhouse, task_id=load_bronze_stopsearch_raw, run_id=manual__2025-10-29T15:50:40.383544+00:00, execution_date=20251029T155040, start_date=20251029T155045, end_date=20251029T155046
+[2025-10-29T15:50:46.213+0000] {local_task_job_runner.py:240} INFO - Task exited with return code 0
+[2025-10-29T15:50:46.239+0000] {taskinstance.py:3503} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-10-29T15:50:46.242+0000] {local_task_job_runner.py:222} INFO - ::endgroup::
