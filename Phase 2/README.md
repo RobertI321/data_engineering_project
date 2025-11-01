@@ -22,9 +22,9 @@ The goal is to build an automated pipeline that ensures data is clean, transform
 ---
 
 ## Overview
-Two data sources are used for **street-level crime** and **stop and search** data for London: 
+Two data sources are used for **street-level crime** and **stop and search** data for London from [data.police.uk.](https://data.police.uk/): 
 - downloadable CSV files
-- API from [data.police.uk.](https://data.police.uk/)
+- API
 
 The ingested raw data will be loaded into Clickhouse Bronze layer. The Silver layer contains cleaned data, the Gold layer includes transformed data modeled according to the dimensional model using dbt.
 
@@ -62,12 +62,12 @@ Step-by-step instructions to get the project running locally.
 
 > :heavy_check_mark: All login credentials are in .env file.
 
-**1. Create a project folder locally** to clone the Git repository (e.g., data_engineering_project)
+**1. Create a project folder locally** where to clone the Git repository
 
 **2. Navigate into the project folder and clone the repository**:
 
 ```bash
-cd data_engineering_project
+cd your_project_folder
 
 git clone https://github.com/RobertI321/data_engineering_project.git
 ```
@@ -80,6 +80,7 @@ docker compose up -d
 **4. Make new server in pgAdmin:**
 1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
 2. Create a new server
+3. ...
 
 **5. Connect to Airflow UI:**
 1. Access Airflow at [http://localhost:8080](http://localhost:8080)
