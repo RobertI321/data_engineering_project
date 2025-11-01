@@ -25,5 +25,4 @@ SELECT
     longitude AS Longitude,
     data_month AS DataMonth
 FROM {{ source('bronze','bronze_stopsearch_raw') }}
-WHERE date IS NOT NULL
 

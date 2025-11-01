@@ -16,7 +16,7 @@ WITH crime AS (
 )
 SELECT
     crime_id AS CrimeID,
-    parseDateTimeBestEffortOrNull(month) AS ReportedDate,
+    toDate(concat(month, '-01')) AS ReportedDate,
     reported_by AS PoliceForce,
     lsoa_code AS LSOACode,
     lsoa_name AS LSOAName,

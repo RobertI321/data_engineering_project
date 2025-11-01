@@ -6,7 +6,6 @@ WITH loc AS (
         Latitude,
         Longitude
     FROM {{ ref('crime_clean') }}
-    WHERE LSOACode IS NOT NULL
 )
 SELECT
     row_number() OVER (ORDER BY LSOACode, LSOAName, LocationDescription) AS LocationKey,

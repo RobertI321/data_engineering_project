@@ -13,8 +13,9 @@ LEFT JOIN {{ ref('dim_date') }} AS dd
 LEFT JOIN {{ ref('dim_demographics') }} AS ddm
     ON ddm.Gender = s.Gender
     AND ddm.AgeRange = s.AgeRange
+    AND ddm.EthnicitySelf = s.EthnicitySelf
+    AND ddm.EthnicityOfficer = s.EthnicityOfficer
 LEFT JOIN {{ ref('dim_search_outcome') }} AS dso
     ON dso.OutcomeName = s.Outcome
 LEFT JOIN {{ ref('dim_search_detail') }} AS dsd
     ON dsd.LegislationUsed = s.Legislation
-WHERE s.StopID IS NOT NULL
