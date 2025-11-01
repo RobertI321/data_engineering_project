@@ -60,16 +60,16 @@ The project includes a ready-to-run Docker Compose setup with the following serv
 ## Environment setup
 Step-by-step instructions to get the project running locally.
 
-> :heavy_check_mark: <span style="color:red">All login credentials are in .env file.</span>
+> :heavy_check_mark: All login credentials are in .env file.
 
 **1. Create a project folder locally** to clone the Git repository
 
-**2. Clone the repository** and navigate into the project folder:
+**2. Navigate into the project folder and clone the repository**:
 
 ```bash
-git clone https://github.com/RobertI321/data_engineering_project.git
-
 cd data_engineering_project
+
+git clone https://github.com/RobertI321/data_engineering_project.git
 ```
 **3. Start the services:**
 > :warning: Make sure that Docker is running before starting the project.
@@ -85,12 +85,12 @@ docker compose up -d
 
 ## Airflow DAGs
 
-<span style="color:red">screenshots, etc</span>
+screenshots, etc
 
 
 ## Analytical queries
 
-<span style="color:red">Revised business questions</span> from Project 1 are answered using dbt models and queries:
+Revised business questions from Project 1 are answered using dbt models and queries:
 
 1. Are some ethnic groups stopped more often than others?
 2. What is the rate of justified searches for each ethnic group? 
