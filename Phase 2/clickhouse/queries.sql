@@ -1,3 +1,40 @@
+-- 1. Are some ethnic groups stopped more often than others?
+
+SELECT dd.EthnicityOfficer,
+       COUNT(fss.StopFactID) AS TotalStops
+FROM ukpolice_gold.fact_stop_search fss
+JOIN ukpolice_gold.dim_demographics dd 
+ON fss.DemographicsKey = dd.DemographicsKey
+GROUP BY dd.EthnicityOfficer
+ORDER BY TotalStops DESC;
+
+-- 2. What is the rate of justified searches for each ethnic group?
+
+SELECT dd.EthnicityOfficer,
+       ROUND(
+        (SUM(CASE WHEN dso.IsSuccessful = TRUE THEN 1 ELSE 0 END) * 100.0) / 
+        COUNT(DISTINCT fss.StopFactID), 1
+       ) AS JustifiedSearchRatePercent
+FROM ukpolice_gold.fact_stop_search fss
+INNER JOIN ukpolice_gold.dim_demographics dd 
+ON fss.DemographicsKey = dd.DemographicsKey
+LEFT JOIN ukpolice_gold.dim_search_outcome dso 
+ON fss.SearchOutcomeKey = dso.SearchOutcomeKey
+GROUP BY dd.EthnicityOfficer
+ORDER BY JustifiedSearchRatePercent DESC;
+
+-- 3. How effective are stop-and-search operations in terms of yielding an outcome linked to the search objective, broken down by year and month?
+
+SELECT formatDateTime(dd.FullDate, '%Y-%m') AS YearMonth,
+       CAST(SUM(CASE WHEN dso.IsSuccessful = TRUE THEN 1 ELSE 0 END) AS DECIMAL) * 100 / 
+            COUNT(fss.StopFactID) AS OverallSuccessfulOutcomeRate
+FROM ukpolice_gold.fact_stop_search fss
+LEFT JOIN ukpolice_gold.dim_date dd
+ON fss.DateKey = dd.DateKey
+JOIN ukpolice_gold.dim_search_outcome dso 
+ON fss.SearchOutcomeKey = dso.SearchOutcomeKey
+GROUP BY formatDateTime(dd.FullDate, '%Y-%m')
+ORDER BY formatDateTime(dd.FullDate, '%Y-%m') DESC;
 
 -- 4. Are there differences by location in terms of effective outcome (stop-and-search led to action)?
 SELECT dl.LSOAName,
