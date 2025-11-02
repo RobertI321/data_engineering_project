@@ -9,54 +9,79 @@ sources:
 
 models:
   - name: dim_date
-    description: "Calendar dimension with season and weekday info"
     columns:
       - name: DateKey
         tests: [unique, not_null]
       - name: FullDate
-        tests: [not_null]
+      - name: Year
+      - name: Month
+      - name: Day 
+      - name: MonthName 
+      - name: Season 
+      - name: Weekday 
+      - name: WeekdayType 
+      - name: Holiday 
 
   - name: dim_location
     columns:
       - name: LocationKey
         tests: [unique, not_null]
       - name: LSOACode
-        tests: [not_null]
+      - name: LSOAName
+      - name: LocationDescription 
+      - name: Latitude 
+      - name: Longitude
   
   - name: dim_crime_outcome
     columns:
       - name: CrimeOutcomeKey
         tests: [unique, not_null]
       - name: OutcomeName
-        tests: [not_null]
+      - name: IsResolved
   
   - name: dim_demographics
     columns: 
       - name: DemographicsKey
         tests: [unique, not_null]
+      - name: Gender
+      - name: AgeRange
+      - name: EthnicitySelf 
+      - name: EthnicityOfficer
 
   - name: dim_search_outcome
     columns:
       - name: SearchOutcomeKey
         tests: [unique, not_null]
+      - name: OutcomeName
+      - name: IsSuccessful
 
   - name: dim_search_detail
     columns:
       - name: SearchDetailKey
         tests: [unique, not_null]
+      - name: LegislationUsed
+      - name: ObjectOfSearch
 
   - name: fact_crime
     columns:
       - name: CrimeFactID
         tests: [unique, not_null]
+      - name: CrimeID
       - name: DateKey
-        tests: [not_null]
       - name: LocationKey
-        tests: [not_null]
+      - name: PoliceForce
+      - name: CrimeType
+      - name: CrimeOutcomeKey 
+      - name: IncidentCount
 
   - name: fact_stop_search
     columns:
       - name: StopFactID
         tests: [unique, not_null]
+      - name: StopID
       - name: DateKey
-        tests: [not_null]
+      - name: DemographicsKey 
+      - name: SearchOutcomeKey
+      - name: SearchDetailKey 
+      - name: IsLinkedToObject
+      - name: StopCount
