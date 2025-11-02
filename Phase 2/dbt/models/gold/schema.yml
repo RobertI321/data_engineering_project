@@ -72,7 +72,6 @@ models:
       - name: PoliceForce
       - name: CrimeType
       - name: CrimeOutcomeKey 
-      - name: IncidentCount
 
   - name: fact_stop_search
     columns:
@@ -84,4 +83,3 @@ models:
       - name: SearchOutcomeKey
       - name: SearchDetailKey 
       - name: IsLinkedToObject
-      - name: StopCount

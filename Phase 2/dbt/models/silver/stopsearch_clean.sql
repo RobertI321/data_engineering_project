@@ -1,17 +1,4 @@
 SELECT
-    cityHash64(
-        coalesce(date, ''),
-        coalesce(gender, ''),
-        coalesce(age_range, ''),
-        coalesce(legislation, ''),
-        coalesce(object_of_search, ''),
-        coalesce(outcome, ''),
-        coalesce(self_defined_ethnicity, ''),
-        coalesce(officer_defined_ethnicity, ''),
-        toString(latitude),
-        toString(longitude),
-        coalesce(data_month, '')
-    ) AS StopID,
     parseDateTimeBestEffortOrNull(date) AS Date,
     gender AS Gender,
     age_range AS AgeRange,

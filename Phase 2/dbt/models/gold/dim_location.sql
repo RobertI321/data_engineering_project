@@ -1,14 +1,31 @@
-WITH loc AS (
+WITH combined AS (
+    SELECT
+        LSOACode,
+        LSOAName,
+        LocationDescription,
+        round(Latitude, 3) AS Latitude,
+        round(Longitude, 3) AS Longitude
+    FROM {{ ref('crime_clean') }}
+    UNION ALL
+    SELECT
+        NULL AS LSOACode,
+        NULL AS LSOAName,
+        NULL AS LocationDescription,
+        round(Latitude, 3) AS Latitude,
+        round(Longitude, 3) AS Longitude
+    FROM {{ ref('stopsearch_clean') }}
+),
+loc AS (
     SELECT DISTINCT
         LSOACode,
         LSOAName,
         LocationDescription,
         Latitude,
         Longitude
-    FROM {{ ref('crime_clean') }}
+    FROM combined
 )
 SELECT
-    row_number() OVER (ORDER BY LSOACode, LSOAName, LocationDescription) AS LocationKey,
+    row_number() OVER (ORDER BY Latitude, Longitude) AS LocationKey,
     LSOACode,
     LSOAName,
     LocationDescription,
