@@ -24,11 +24,11 @@ The goal is to build an automated pipeline that ensures data is clean, transform
 ## Overview
 Two data sources are used for **street-level crime** and **stop and search** data for London from [data.police.uk.](https://data.police.uk/): 
 - downloadable CSV files
-- API
+- API for metadata (available months)
 
 The ingested raw data will be loaded into ClickHouse Bronze layer. The Silver layer contains cleaned data, the Gold layer includes transformed data modeled according to the dimensional model using dbt.
 
-...
+Business questions are answered by querying the Gold layer in ClickHouse.
 
 ---
 
@@ -36,11 +36,12 @@ The ingested raw data will be loaded into ClickHouse Bronze layer. The Silver la
 ```text
 Phase 2/
 ├── .env
-├── .gitignore
 ├── airflow-docker/
-|   ├── configs
+|   ├── configs/
 │   ├── dags/
 │   └── docker-compose.yaml
+├── clickhouse/
+|   └── queries.sql
 ├── dbt/
 |    ├── models/
 |    ├── dbt_project.yml
