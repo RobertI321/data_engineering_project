@@ -114,7 +114,7 @@ USE ukpolice_silver;
 SHOW TABLES;
 SELECT * FROM crime_clean LIMIT 10;
 ```
-4. Query data from ClickHouse Silver layer:
+4. Query data from ClickHouse Gold layer:
 ```bash
 USE ukpolice_gold;
 SHOW TABLES;
