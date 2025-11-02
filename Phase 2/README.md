@@ -146,12 +146,61 @@ The DAGs can be managed through the Airflow Web UI:
 
 ## Analytical queries
 
-Revised business questions from Project 1 are answered using dbt models and queries:
+Business questions from Project 1 are answered using data in the Gold layer. SQL queries are in project folder Phase 2/ClickHouse/sql.
 
 1. Are some ethnic groups stopped more often than others?
+
+| EthnicityOfficer | TotalStops | 
+|:-----------------|-----------:|
+| White            | 274        |
+| Asian            | 34         |
+| Black            | 15         |
+| Other            | 11         |
+|                  | 11         |
+
 2. What is the rate of justified searches for each ethnic group? 
     - A justified search is one that leads to criminal charges or other legal actions.
+
+| EthnicityOfficer | JustifiedSearchRatePercent | 
+|:-----------------|---------------------------:|
+| Asian            | 45                         |
+| Black            | 41.2                       |
+| Other            | 39.3                       |
+| White            | 34.2                       |
+|                  | 28.6                       |
+
 3. How effective are stop-and-search operations, in terms of yielding an outcome linked to the search objective?
+
+| YearMonth | OverallSuccessfulOutcomeRate | 
+|:----------|-----------------------------:|
+| 2025-08   | 35                           |
+
 4. Are there differences by area in terms of effective outcome (stop-and-search led to action)?
+
+| LSOAName           | TotalStops | SuccessfulOutcomeRate |
+|:-------------------|-----------:|----------------------:|
+| Cambridge 007J     | 31         | 0                     |
+| Cambridge 007H     | 21         | 0                     |
+| Peterborough 014A  | 19         | 47                    |
+| Peterborough 014D  | 9          | 100                   |
+| Peterborough 014G  | 9          | 100                   |
+| Peterborough 011C  | 9          | 11                    |
+| ...                | ...        | ...                   |
+
 5. Are there certain months or seasons when crime and stop-and-search both increase?
+
+| Year           | MonthName | TotalCrimeIncidents | TotalStopEvents |
+|:---------------|----------:|--------------------:|----------------:|
+| 2025           | Aug       | 71368               | 622             |    
+
 6. What types of crimes are most commonly closed with no suspect identified?
+
+| CrimeType                     | UnresolvedCases | TotalCases | UnresolvedRatePercent |
+|:------------------------------|----------------:|-----------:|----------------------:|
+| Bicycle theft                 | 1470            | 1639       | 89.7                  |
+| Theft from the person         | 945             | 1085       | 87.1                  |
+| Vehicle crime                 | 2210            | 3192       | 69.2                  |
+| Other theft                   | 2963            | 4803       | 61.7                  |
+| ...                           | ...             | ...        | ...                   |
+| Violence and sexual offences  | 3489            | 24258      | 14.4                  |
+| Other crime                   | 148             | 1761       | 8.4                   |
