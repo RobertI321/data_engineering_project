@@ -6,7 +6,6 @@ SELECT
     c.PoliceForce,
     c.CrimeType,
     dco.CrimeOutcomeKey,
-    1 AS IncidentCount
 FROM {{ ref('crime_clean') }} AS c
 LEFT JOIN {{ ref('dim_date') }} AS dd
     ON toYYYYMMDD(dd.FullDate) = toYYYYMMDD(c.ReportedDate)
