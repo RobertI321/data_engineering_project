@@ -77,7 +77,6 @@ models:
     columns:
       - name: StopFactID
         tests: [unique, not_null]
-      - name: StopID
       - name: DateKey
       - name: DemographicsKey 
       - name: SearchOutcomeKey
