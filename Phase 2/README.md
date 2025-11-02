@@ -3,7 +3,7 @@ In this phase, we implement a working data pipeline that ingests, transforms, an
 
 The project uses the following technologies:
 - **Apache Airflow** to orchestrate and schedule data pipeline.
-- **Clickhouse** for analytical storage.
+- **ClickHouse** for analytical storage.
 - **dbt** for making data transformations.
 - **Docker** to containerize services and ensure the environment is consistent and reproducible across different machines.
 
@@ -26,7 +26,7 @@ Two data sources are used for **street-level crime** and **stop and search** dat
 - downloadable CSV files
 - API
 
-The ingested raw data will be loaded into Clickhouse Bronze layer. The Silver layer contains cleaned data, the Gold layer includes transformed data modeled according to the dimensional model using dbt.
+The ingested raw data will be loaded into ClickHouse Bronze layer. The Silver layer contains cleaned data, the Gold layer includes transformed data modeled according to the dimensional model using dbt.
 
 ...
 
@@ -56,7 +56,7 @@ The project includes a ready-to-run Docker Compose setup with the following serv
 - **Airflow Scheduler** to schedule and trigger DAGs.
 - **Postgres** serves as the Airflow metadata database and staging area.
 - **pgAdmin** for managing the Postgres database.
-- **Clickhouse** as the analytical warehouse.
+- **ClickHouse** as the analytical warehouse.
 - **dbt** to transform data from the Bronze to the Gold layer.
 ---
 
@@ -92,7 +92,7 @@ docker compose up -d
 **5. Connect to Airflow UI:**
 1. Access Airflow at [http://localhost:8080](http://localhost:8080)
 2. To ingest raw data into the staging layer in the Postgres database, run the DAG **police_data_ingestion**.
-3. To move data into the Clickhouse Bronze layer, run the DAG **move_data_to_clickhouse**.
+3. To move data into the ClickHouse Bronze layer, run the DAG **move_data_to_clickhouse**.
 
 ...
 ---
@@ -103,7 +103,20 @@ The DAGs can be managed through the Airflow Web UI:
 
 ![Airflow DAGs](images/airflow_dags.png)
 
-...
+- **police_data_ingestion**:
+    - automates the ingestion of police crime and stop-and-search data for the Cambridgeshire region from the [UK Police data service](https://data.police.uk/)
+    - retrieves metadata (available months) via the API and downloads the corresponding montly data archive as zipped CSV files
+    - scheduled to run monthly, as new data becomes available each month
+    - loads the latest month's raw data into Postgres database (staging)
+    - ensures idempotent loading - already ingested months are skipped to prevent duplicates. 
+
+- **move_data_to_clickhouse**
+    - transfers raw data from Postgres staging area into the ClickHouse Bronze layer
+    - run manually after raw data has been successfully ingested
+    - ensures idempotent loading - deletes existing data for a given month, and removes rows for the same month before reloading
+    - executes dbt models using the newly loaded data, transforming it into the Silver and Gold layers in ClickHouse
+    - runs dbt tests (validations, e.g., unique and not null constraints) to verify data quality
+    - dbt tasks are dependent on loading data: all load tasks must be completed before dbt transformations start.
 
 ## Analytical queries
 
