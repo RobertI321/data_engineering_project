@@ -94,7 +94,33 @@ docker compose up -d
 2. To ingest raw data into the staging layer in the Postgres database, run the DAG **police_data_ingestion**.
 3. To move data into the ClickHouse Bronze layer, run the DAG **move_data_to_clickhouse**.
 
-...
+**6. Connect to ClickHouse:**
+1. Access ClickHouse UI at [http://localhost:8123/play](http://localhost:8123/play)
+or via Docker:
+
+```bash
+docker exec -it clickhouse-project2 clickhouse-client
+```
+2. Query data from ClickHouse Bronze layer:
+```bash
+USE bronze;
+SHOW TABLES;
+SELECT * FROM bronze_crime_raw LIMIT 10;
+```
+3. Query data from ClickHouse Silver layer:
+```bash
+USE ukpolice_silver;
+SHOW TABLES;
+SELECT * FROM crime_clean LIMIT 10;
+```
+4. Query data from ClickHouse Silver layer:
+```bash
+USE ukpolice_gold;
+SHOW TABLES;
+SELECT * FROM dim_date LIMIT 10;
+SELECT * FROM fact_crime LIMIT 10;
+```
+
 ---
 
 ## Airflow DAGs
