@@ -3,10 +3,10 @@ ukpolice_project:
   outputs:
     dev:
       type: clickhouse
-      host: clickhouse-project2
+      host: clickhouse-server
       port: 8123
-      user: default
-      password: clickhouse_pass
+      user: "{{ env_var('CLICKHOUSE_USER') }}"
+      password: "{{ env_var('CLICKHOUSE_PASSWORD') }}"
       schema: ukpolice
       secure: false
       threads: 4

@@ -2,5 +2,18 @@
 **/__pycache__/
 *.pyc
 
-# Logs
+# Logs & tmp
+logs/
 **/logs/
+tmp/
+**/tmp/
+*.log
+
+dbt/target/
+dbt/dbt_packages/
+dbt/.user.yml
+
+**/docker-data/
+**/minio-data/
+**/clickhouse-data/
+

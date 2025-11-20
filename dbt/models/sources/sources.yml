@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: bronze
+    schema: bronze
+    database: bronze 
+    tables:
+      - name: bronze_crime_raw
+      - name: bronze_stopsearch_raw

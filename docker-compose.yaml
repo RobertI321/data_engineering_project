@@ -1,0 +1,267 @@
+
+networks:
+  iceberg_network:
+    driver: bridge
+
+# ---------------------------------------------------------------
+# SHARED CONFIGURATION FOR AIRFLOW
+# ---------------------------------------------------------------
+x-airflow-common: &airflow-common
+  image: apache/airflow:2.9.2
+
+  env_file:
+    - .env
+
+  environment:
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+
+    AIRFLOW_CONN_CLICKHOUSE_DB: clickhouse+http://${CLICKHOUSE_USER}:${CLICKHOUSE_PASSWORD}@clickhouse-server:8123/default
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@airflow-db:5432/airflow
+
+    _PIP_ADDITIONAL_REQUIREMENTS: >
+      pyarrow>=17.0.0
+      pyiceberg>=0.9.0
+      pandas
+      psycopg2-binary
+      clickhouse-connect
+      dbt-core
+      dbt-clickhouse
+      boto3
+      s3fs
+
+  volumes:
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/logs:/opt/airflow/logs
+    - ./dbt:/opt/airflow/dbt
+    - ./airflow/tmp:/opt/airflow/tmp
+
+  user: "${AIRFLOW_UID:-50000}:0"
+
+  depends_on:
+    airflow-db:
+      condition: service_healthy
+
+  networks:
+    - iceberg_network
+
+# ===============================================================
+# SERVICES
+# ===============================================================
+services:
+
+  airflow-webserver:
+    <<: *airflow-common
+    container_name: airflow-webserver
+    command: webserver
+    ports:
+      - "8080:8080"
+    restart: always
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-scheduler:
+    <<: *airflow-common
+    container_name: airflow-scheduler
+    command: scheduler
+    restart: always
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+
+  airflow-db:
+    image: postgres:13
+    container_name: airflow-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: airflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - airflow-postgres-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
+      interval: 5s
+      retries: 5
+    networks:
+      - iceberg_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "5050:80"
+    depends_on:
+      airflow-db:
+        condition: service_healthy
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - iceberg_network
+
+  airflow-init:
+    <<: *airflow-common
+    container_name: airflow-init
+    entrypoint: /bin/bash
+    command:
+      - -c
+      - |
+        mkdir -p /opt/airflow/{dags,logs,plugins,config}
+        airflow db init
+        airflow users create \
+          --username ${AIRFLOW_ADMIN_USER} \
+          --password ${AIRFLOW_ADMIN_PASSWORD} \
+          --firstname Admin \
+          --lastname User \
+          --role Admin \
+          --email admin@example.com
+    restart: "no"
+    networks:
+      - iceberg_network
+
+  # -------------------------------------------------------------
+  # CLICKHOUSE SERVER
+  # -------------------------------------------------------------
+  clickhouse-server:
+    image: clickhouse/clickhouse-server
+    container_name: clickhouse-server
+    env_file:
+      - .env
+    entrypoint: ["/bin/bash", "-c", "/entrypoint.sh & sleep 6 && /scripts/clickhouse-init.sh && wait"]
+    environment:
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+      CLICKHOUSE_USER: ${CLICKHOUSE_USER}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+      CLICKHOUSE_DB: default
+
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+
+    volumes:
+      - clickhouse-data-volume:/var/lib/clickhouse
+      - ./sql:/sql
+      - ./airflow/scripts:/scripts
+
+    networks:
+      - iceberg_network
+
+    healthcheck:
+      test: ["CMD-SHELL", "clickhouse-client --query='SELECT 1' || exit 1"]
+      interval: 10s
+      retries: 5
+    
+    depends_on:
+      minio:
+        condition: service_started
+      minio-init:
+        condition: service_completed_successfully
+      
+  # -------------------------------------------------------------
+  # MINIO SERVER
+  # -------------------------------------------------------------
+  minio:
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    container_name: minio
+    ports:
+      - "9100:9000"
+      - "9101:9001"
+    command: [ "server", "--console-address", ":9001", "/data" ]
+    env_file:
+      - .env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    networks:
+      - iceberg_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 15s
+
+  # -------------------------------------------------------------
+  # MINIO INIT – CREATE BUCKET + APPLY POLICY
+  # -------------------------------------------------------------
+  minio-init:
+    image: quay.io/minio/mc:RELEASE.2025-03-12T17-29-24Z
+    container_name: minio-init
+    depends_on:
+      - minio
+    restart: on-failure
+    env_file:
+      - .env
+    entrypoint: >
+      /bin/sh -c "
+      echo '===> Waiting a bit for MinIO...';
+      sleep 5;
+
+      echo '===> Setting MinIO alias';
+      /usr/bin/mc alias set myminio http://minio:9000 ${MINIO_ROOT_USER} ${MINIO_ROOT_PASSWORD};
+      # ... (omitted debug prints) ...
+
+      echo '===> Creating bucket (iceberg-bucket) if missing';
+      /usr/bin/mc mb myminio/iceberg-bucket || echo 'Bucket already exists, continuing';
+      
+      echo '===> Creating Iceberg namespace prefix: bronze/';
+      # Replace 'mc mkdir' with 'mc touch' to create a placeholder file
+      /usr/bin/mc touch myminio/iceberg-bucket/bronze/placeholder.txt || echo 'Placeholder creation complete';
+
+      # The subsequent ls command won't show a 'folder' if it only has this file, but the file exists.
+
+      echo '===> Applying anonymous read-only policy';
+      /usr/bin/mc anonymous set-json /policies/iceberg-policy.json myminio/iceberg-bucket;
+      echo '===> MinIO initialization complete';
+      exit 0
+      "
+    volumes:
+      - ./minio/policies:/policies
+    networks:
+      - iceberg_network
+
+
+      
+
+  # -------------------------------------------------------------
+  # ICEBERG REST
+  # -------------------------------------------------------------
+  iceberg_rest:
+    image: tabulario/iceberg-rest:1.6.0
+    container_name: iceberg_rest
+    ports:
+      - "8181:8181"
+    environment:
+      AWS_ACCESS_KEY_ID: ${MINIO_ROOT_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+      AWS_REGION: us-east-1
+      CATALOG_WAREHOUSE: s3://iceberg-bucket/
+      CATALOG_IO__IMPL: org.apache.iceberg.aws.s3.S3FileIO
+      CATALOG_S3_ENDPOINT: http://minio:9000
+      CATALOG_S3_path__style__access: "true"
+    depends_on:
+      minio-init:
+        condition: service_completed_successfully
+      minio:
+        condition:  service_healthy
+    networks:
+      - iceberg_network
+    env_file:
+      - .env
+
+# -------------------------------------------------------------
+# VOLUMES
+# -------------------------------------------------------------
+volumes:
+  clickhouse-data-volume:
+  airflow-postgres-volume:
+  pgadmin-data:
+  minio_data:
