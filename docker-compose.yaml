@@ -90,7 +90,7 @@ services:
       - iceberg_network
 
   pgadmin:
-    image: dpage/pgadmin4
+    image: dpage/pgadmin4:8
     container_name: pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
@@ -129,13 +129,13 @@ services:
   # CLICKHOUSE SERVER
   # -------------------------------------------------------------
   clickhouse-server:
-    image: clickhouse/clickhouse-server
+    image: clickhouse/clickhouse-server:24.8
     container_name: clickhouse-server
     env_file:
       - .env
     entrypoint: ["/bin/bash", "-c", "/entrypoint.sh & sleep 6 && /scripts/clickhouse-init.sh && wait"]
     environment:
-      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1  # https://clickhouse.com/docs/operations/settings/settings-users#access_management-user-setting
       CLICKHOUSE_USER: ${CLICKHOUSE_USER}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
       CLICKHOUSE_DB: default
