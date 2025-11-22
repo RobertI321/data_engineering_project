@@ -18,5 +18,5 @@ GRANT analyst_limited TO limited_user;
 GRANT SELECT ON ukpolice_gold.view_analysis_full
 TO analyst_full;
 
-GRANT SELECT ON ukpolice_gold.view_analysis_pseudonym
+GRANT SELECT ON ukpolice_gold.view_analysis_masked
 TO analyst_limited;
