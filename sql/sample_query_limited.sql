@@ -3,4 +3,4 @@ SET ROLE analyst_limited;
 SELECT * FROM ukpolice_gold.view_analysis_full LIMIT 5;   -- should not give output
 
 SET ROLE analyst_limited;
-SELECT * FROM ukpolice_gold.view_analysis_masked LIMIT 5;
+SELECT * FROM ukpolice_gold.masked_analysis LIMIT 5;
