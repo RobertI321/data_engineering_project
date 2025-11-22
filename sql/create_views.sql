@@ -34,10 +34,10 @@ LEFT JOIN ukpolice_gold.dim_search_outcome so
 LEFT JOIN ukpolice_gold.dim_search_detail sd
     ON s.SearchDetailKey = sd.SearchDetailKey;
 
- -- Limited-access view with pseudonymized columns (Gender, EthnicityOfficer, LSOACode, LSOAName, LSOALocationDescription)
+ -- Limited-access table with pseudonymized columns (Gender, EthnicityOfficer, LSOACode, LSOAName, LSOALocationDescription)
 DROP VIEW IF EXISTS ukpolice_gold.view_analysis_masked;
 
-CREATE VIEW ukpolice_gold.view_analysis_masked AS
+CREATE TABLE ukpolice_gold.masked_analysis AS
 SELECT
     s.StopFactID,
     d.Year,

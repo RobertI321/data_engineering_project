@@ -15,8 +15,8 @@ GRANT analyst_full TO full_user;
 GRANT analyst_limited TO limited_user;
 
 -- give the users select rights on respective views
-GRANT SELECT ON ukpolice_gold.view_analysis_full
+GRANT SELECT ON ukpolice_gold.*
 TO analyst_full;
 
-GRANT SELECT ON ukpolice_gold.view_analysis_masked
+GRANT SELECT ON ukpolice_gold.masked_analysis
 TO analyst_limited;
