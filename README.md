@@ -382,7 +382,7 @@ FORMAT Pretty;
 
 ![query3](images/query3.png)
 
-Now, the user sees the query results. The columns Gender, EthnicityOfficer, and columns related to LSOA are masked.
+Now, the user sees the query results. The columns Gender, EthnicityOfficer, and columns related to location are masked.
 
 
 **Login as full-access user** (terminal asks for password):
