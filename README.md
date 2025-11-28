@@ -1,4 +1,4 @@
-# Crime and Stop-and-Search Analytics
+# 1. Crime and Stop-and-Search Analytics
 ## Table of Contents
 - [Overview](#overview)
 - [Key Objectives](#key-objectives)
@@ -84,7 +84,7 @@ sql/
 ```
 ---
 
-# Data warehouse implementation, ETL pipelines*
+# 2. Data warehouse implementation, ETL pipelines*
 #### * Project 2 updated to comply with changes made in Project 3.
 ## Table of Contents
 - [Overview](#overview-1)
@@ -270,7 +270,7 @@ Business questions from Project 1 are answered using data in the Gold layer. SQL
 
 ---
 
-# Data governance and visualization
+# 3. Data governance and visualization
 ## Table of Contents
 - [Overview](#overview-2)
 - [Environment setup](#environment-setup-1)
