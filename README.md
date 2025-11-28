@@ -348,7 +348,7 @@ docker exec -it clickhouse-server clickhouse-client --multiquery --queries-file=
 
 The limited-access user should not get any results when querying the Gold layer tables or the view that is meant for the full-acces role.
 
-**1. Login as limited-access user** (terminal asks for password):
+**Login as limited-access user** (terminal asks for password):
 ```bash
 docker exec -it clickhouse-server clickhouse-client -u limited_user --password $env:CLICKHOUSE_PASSWORD_LIMITED
 ```
@@ -385,7 +385,7 @@ FORMAT Pretty;
 Now, the user sees the query results. The columns Gender, EthnicityOfficer, and columns related to LSOA are masked.
 
 
-**2. Login as full-access user** (terminal asks for password):
+**Login as full-access user** (terminal asks for password):
 ```bash
 docker exec -it clickhouse-server clickhouse-client -u full_user --password $env:CLICKHOUSE_PASSWORD_FULL
 ```
