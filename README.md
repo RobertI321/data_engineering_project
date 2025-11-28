@@ -370,7 +370,7 @@ FROM ukpolice_gold.view_analysis_full
 LIMIT 5;
 ```
 
-![query2](query2.png)
+![query2](images/query2.png)
 
 Query a Gold layer table that the user has access to:
 ```bash
@@ -380,7 +380,7 @@ LIMIT 5
 FORMAT Pretty;
 ```
 
-![query3](query3.png)
+![query3](images/query3.png)
 
 Now, the user sees the query results. The columns Gender, EthnicityOfficer, and columns related to LSOA are masked.
 
@@ -408,7 +408,7 @@ LIMIT 5
 FORMAT Pretty;
 ```
 
-![query5](query5.png)
+![query5](images/query5.png)
 
 This user sees the unmasked data. The query selects only some columns because the size of the table.
 
