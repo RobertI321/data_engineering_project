@@ -4,10 +4,10 @@ CREATE ROLE IF NOT EXISTS analyst_limited;
 
 -- create users
 CREATE USER IF NOT EXISTS full_user
-IDENTIFIED BY 'full_password';
+IDENTIFIED BY {full_pwd:String};
 
 CREATE USER IF NOT EXISTS limited_user
-IDENTIFIED BY 'limited_password';
+IDENTIFIED BY {limited_pwd:String};
 
 
 -- give the users their roles

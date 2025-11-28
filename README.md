@@ -1,5 +1,14 @@
 # Crime and Stop-and-Search Analytics
+## Table of Contents
+- [Overview](#overview)
+- [Key Objectives](#key-objectives)
+- [Datasets](#datasets)
+  - [Crime data](#crime-data)
+  - [Stop and search data](#stop-and-search-data)
+- [Workflow](#workflow)
+- [Project structure](#project-structure)
 
+---
 ## Overview
 This project looks at how crime incidents and stop-and-search activity relate to each other in London. By bringing these two datasets together, it becomes possible to see patterns across areas and groups, check how effective searches are, and highlight when and where activity increases. The results can help police and councils with planning, reporting, and safety work.
 
@@ -19,7 +28,7 @@ Two public datasets from the [UK Police Data Portal](https://data.police.uk/data
 - Includes when and where an incident happened, what type it was, and its last known outcome.  
 - Location information is given at street or small-area level (LSOA).  
 
-### Stop-and-search data
+### Stop and search data
 - Records police stop-and-search activity.  
 - Includes the date, location, reason for the search, demographics of the person stopped, and the outcome.  
 - Also shows whether the outcome was linked to the original reason for the search.  
@@ -34,8 +43,60 @@ Two public datasets from the [UK Police Data Portal](https://data.police.uk/data
 5. **Analyze** – ClickHouse is used for fast queries across large volumes.  
 6. **Visualize** – Apache Superset presents dashboards and KPIs to answer key questions.  
 
+---
+## Project structure
+```text
+.env
+docker-compose.yml
+airflow-docker/
+├── dags/
+└── scripts/
+data/
+├── 2025-07-cambridgeshire-stop-and-search_sample_data.csv
+└── 2025-07-cambridgeshire-streets_sample_data.csv
+dbt/
+├── models/
+|   ├── dbt_project.yml
+|   ├── profiles.yml
+|   ├── gold/
+|   |   └── ...
+|   ├── silver/
+|   |   └── ...
+|   └── sources/
+|       └── ...
+diagrams/
+└── ...
+docs/
+└── metadata.json
+images/
+└── ...
+minio/
+└── iceberg-policy.json
+sql/
+├── 01_create_bronze_tables.sql
+├── 02_make_iceberg_table_queriable.sql
+├── 03_star_schema.sql
+├── 04_analytical_queries.sql
+├── 05_create_roles.sql
+├── 06_create_views.sql
+├── 07_sample_query_limited.sql
+└── 08_sample_query_full.sql
+```
+---
 
-# Project 2. Data warehouse implementation, ETL pipelines
+# Data warehouse implementation, ETL pipelines*
+#### * Project 2 updated to comply with changes made in Project 3.
+## Table of Contents
+- [Overview](#overview-1)
+- [Services](#services)
+- [Environment setup](#environment_setup)
+- [Airflow DAGs](#airflow-dags)
+- [Analytical queries](#analytical-queries)
+
+---
+
+## Overview
+
 In this phase, we implement a working data pipeline that ingests, transforms, and loads data into an analytical warehouse. 
 
 The project uses the following technologies:
@@ -46,19 +107,6 @@ The project uses the following technologies:
 
 The goal is to build an automated pipeline that ensures data is clean, transformed, and available for analytics.
 
----
-
-## Table of Contents
-- [Overview](#overview)
-- [Services](#services)
-- [Project structure](#project-structure)
-- [Environment setup](#environment_setup)
-- [Airflow DAGs](#airflow-dags)
-- [Analytical queries](#analytical-queries)
-
----
-
-## Overview
 Two data sources are used for **street-level crime** and **stop and search** data for London from [data.police.uk.](https://data.police.uk/): 
 - downloadable CSV files
 - API for metadata (available months)
@@ -69,30 +117,11 @@ Business questions are answered by querying the Gold layer in ClickHouse.
 
 ---
 
-## Project structure
-```text
-Phase 2/
-├── .env
-├── airflow-docker/
-|   ├── configs/
-│   ├── dags/
-│   └── docker-compose.yaml
-├── clickhouse/
-|   └── queries.sql
-├── dbt/
-|    ├── models/
-|    ├── dbt_project.yml
-|    └── profiles.yml
-└── images/
-    └── airflow_dags.png
-```
----
-
 ## Services
 The project includes a ready-to-run Docker Compose setup with the following services:
 - **Airflow Webserver** for monitoring and managing pipelines.
 - **Airflow Scheduler** to schedule and trigger DAGs.
-- **Postgres** serves as the Airflow metadata database and staging area.
+- **Postgres** serves as the Airflow metadata database.
 - **pgAdmin** for managing the Postgres database.
 - **ClickHouse** as the analytical warehouse.
 - **dbt** to transform data from the Bronze to the Gold layer.
@@ -115,8 +144,8 @@ git clone https://github.com/RobertI321/data_engineering_project.git
 **3. Start the services** using "docker-compose.yaml" in the airflow-docker folder:
 > :warning: Make sure that Docker is running before starting the project.
 ```bash
-cd "data_engineering_project/Phase 2/airflow-docker"
-docker compose up -d
+cd "data_engineering_project"
+docker compose up --build -d
 ```
 **4. Connect to pgAdmin** and create a new server:
 1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
@@ -137,7 +166,7 @@ docker compose up -d
 or via Docker:
 
 ```bash
-docker exec -it clickhouse-project2 clickhouse-client
+docker exec -it clickhouse-server clickhouse-client
 ```
 2. Query data from ClickHouse Bronze layer:
 ```bash
@@ -171,16 +200,12 @@ The DAGs can be managed through the Airflow Web UI:
     - automates the ingestion of police crime and stop-and-search data for the Cambridgeshire region from the [UK Police data service](https://data.police.uk/)
     - retrieves metadata (available months) via the API and downloads the corresponding montly data archive as zipped CSV files
     - scheduled to run monthly, as new data becomes available each month
-    - loads the latest month's raw data into Postgres database (staging)
-    - ensures idempotent loading - already ingested months are skipped to prevent duplicates. 
-
-- **move_data_to_clickhouse**
-    - transfers raw data from Postgres staging area into the ClickHouse Bronze layer
-    - run manually after raw data has been successfully ingested
+    - loads the latest month's raw data into ClickHouse Bronze layer
     - ensures idempotent loading - deletes existing data for a given month, and removes rows for the same month before reloading
     - executes dbt models using the newly loaded data, transforming it into the Silver and Gold layers in ClickHouse
     - runs dbt tests (validations, e.g., unique and not null constraints) to verify data quality
     - dbt tasks are dependent on loading data: all load tasks must be completed before dbt transformations start.
+---
 
 ## Analytical queries
 
@@ -242,3 +267,158 @@ Business questions from Project 1 are answered using data in the Gold layer. SQL
 | ...                           | ...             | ...        | ...                   |
 | Violence and sexual offences  | 3489            | 24258      | 14.4                  |
 | Other crime                   | 148             | 1761       | 8.4                   |
+
+---
+
+# Data governance and visualization
+## Table of Contents
+- [Overview](#overview-2)
+- [Environment setup](#environment-setup-1)
+- [Apache Iceberg](#apache-iceberg)
+- [Clickhouse](#clickhouse)
+- [OpenMetadata](#openmetadata)
+- [Apache Superset](#apache-superset)
+
+---
+## Overview
+This part of the project focuses on **data governance, security and privacy, and modern data analytics**, using Apache Iceberg and Apache Superset, on top of that work.
+
+A new DAG in Airflow **iceberg_crime_summary** writes summarized crime data into an Iceberg table on MinIO. A MinIO bucket iceberg-bucket is automatically created.
+
+---
+## Environment setup
+**1. Start services**:
+At first, make sure you have followed the steps provided in the previous [environment setup](#environment-setup) paragraph.
+
+**2. Using MinIO UI**:
+- Login: http://localhost:9101/login
+- Bucket: iceberg-bucket
+
+
+....
+
+---
+## Querying Iceberg tables
+
+```bash
+...
+```
+
+---
+## ClickHouse
+**Two roles** are created with different privileges: one for the analyst with **full access** to Gold layer tables, the other one for the **limited-access** analyst who can query a table based on Gold layer tables which has some columns masked.
+
+All necessary sql scripts are in the **sql** folder.
+
+**1. Load .env variables for using with sql scripts**
+
+In PowerShell:
+```bash
+# Load .env variables
+Get-Content .env | ForEach-Object {
+    if ($_ -and $_ -notmatch '^#') {
+        $parts = $_ -split '=', 2
+        if ($parts.Length -eq 2) {
+            [System.Environment]::SetEnvironmentVariable($parts[0], $parts[1], "Process")
+        }
+    }
+```
+
+**2. Create full and limited-access roles and users, and grant access to users**
+
+Read SQL file and replace placeholders:
+```bash
+$sql = Get-Content ./sql/05_create_roles.sql -Raw
+$sql = $sql -replace '\{full_pwd:String\}', "'$env:CLICKHOUSE_PASSWORD_FULL'"
+$sql = $sql -replace '\{limited_pwd:String\}', "'$env:CLICKHOUSE_PASSWORD_LIMITED'"
+```
+
+Create roles and users, and grant access:
+```bash
+$sql | docker exec -it clickhouse-server clickhouse-client
+```
+
+**3. Create a full view, and table with masked columns on top of the Gold layer tables**
+
+```bash
+docker exec -it clickhouse-server clickhouse-client --multiquery --queries-file=/sql/06_create_views.sql
+```
+
+**4. Query the data with different roles**
+
+The limited-access user should not get any results when querying the Gold layer tables or the view that is meant for the full-acces role.
+
+**1. Login as limited-access user** (terminal asks for password):
+```bash
+docker exec -it clickhouse-server clickhouse-client -u limited_user --password $env:CLICKHOUSE_PASSWORD_LIMITED
+```
+
+Have a look at the Gold layer tables:
+```bash
+USE ukpolice_gold;
+SHOW TABLES;
+```
+
+![query1](images/query1.png)
+
+As you can see, the user with limited access can't even see the names of the tables and views which he doesn't have access.
+
+Query a Gold layer table or a full-access view:
+```bash
+SELECT * 
+FROM ukpolice_gold.view_analysis_full
+LIMIT 5;
+```
+
+![query2](query2.png)
+
+Query a Gold layer table that the user has access to:
+```bash
+SELECT StopFactID, Year, Month, Day, LSOACode, LSOAName, LocationDescription, Gender, EthnicityOfficer, Outcome, IsSuccessful
+FROM ukpolice_gold.masked_analysis
+LIMIT 5
+FORMAT Pretty;
+```
+
+![query3](query3.png)
+
+Now, the user sees the query results. The columns Gender, EthnicityOfficer, and columns related to LSOA are masked.
+
+
+**2. Login as full-access user** (terminal asks for password):
+```bash
+docker exec -it clickhouse-server clickhouse-client -u full_user --password $env:CLICKHOUSE_PASSWORD_FULL
+```
+
+Have a look at the Gold layer tables:
+```bash
+USE ukpolice_gold;
+SHOW TABLES;
+```
+
+![query4](images/query4.png)
+
+The full-access user sees all the tables and views from the Gold layer.
+
+Query a Gold layer table or a full-access view:
+```bash
+SELECT StopFactID, Year, Month, Day, LSOACode, LSOAName, LocationDescription, Gender, EthnicityOfficer, Outcome, IsSuccessful
+FROM ukpolice_gold.view_analysis_full
+LIMIT 5
+FORMAT Pretty;
+```
+
+![query5](query5.png)
+
+This user sees the unmasked data. The query selects only some columns because the size of the table.
+
+---
+## OpenMetadata
+
+
+---
+## Apache Superset
+
+
+---
+

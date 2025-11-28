@@ -129,7 +129,7 @@ services:
   # CLICKHOUSE SERVER
   # -------------------------------------------------------------
   clickhouse-server:
-    image: clickhouse/clickhouse-server:24.8
+    image: clickhouse/clickhouse-server:25.1
     container_name: clickhouse-server
     env_file:
       - .env
