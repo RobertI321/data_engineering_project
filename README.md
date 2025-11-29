@@ -145,7 +145,7 @@ git clone https://github.com/RobertI321/data_engineering_project.git
 > :warning: Make sure that Docker is running before starting the project.
 ```bash
 cd "data_engineering_project"
-docker compose up --build -d
+docker compose -f docker-compose.yaml -f docker-om-compose.yaml up --build -d
 ```
 **4. Connect to pgAdmin** and create a new server:
 1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
@@ -414,6 +414,35 @@ This user sees the unmasked data. The query selects only some columns because th
 
 ---
 ## OpenMetadata
+
+### 4.1 Register ClickHouse Service
+
+1. Open the OpenMetadata UI:  
+   **http://localhost:8585**
+
+2. Log in using the default credentials:  
+   - **Email:** `admin@open-metadata.org`  
+   - **Password:** `admin`
+
+3. Navigate to:  
+   **Settings → Services → Databases**
+
+4. Click **Add Service** and select **ClickHouse**
+
+5. Fill in the connection details:
+
+   - **Service Name:** `clickhouse`
+   - **Host:** `clickhouse-server`
+   - **Port:** `8123`
+   - **Username:** `default`
+   - **Password:** `clickhouse_pass`
+   - **Database:** `default`
+
+6. Click **Test Connection** and wait for a **SUCCESS** result.
+
+7. Click **Save** to register the service.
+
+8. Add table and column descriptions
 
 
 ---
