@@ -9,17 +9,6 @@
 - [Project structure](#project-structure)
 
 ---
-# 1. Crime and Stop-and-Search Analytics
-## Table of Contents
-- [Overview](#overview)
-- [Key Objectives](#key-objectives)
-- [Datasets](#datasets)
-  - [Crime data](#crime-data)
-  - [Stop and search data](#stop-and-search-data)
-- [Workflow](#workflow)
-- [Project structure](#project-structure)
-
----
 ## Overview
 This project looks at how crime incidents and stop-and-search activity relate to each other in London. By bringing these two datasets together, it becomes possible to see patterns across areas and groups, check how effective searches are, and highlight when and where activity increases. The results can help police and councils with planning, reporting, and safety work.
 
@@ -40,7 +29,6 @@ Two public datasets from the [UK Police Data Portal](https://data.police.uk/data
 - Location information is given at street or small-area level (LSOA).  
 
 ### Stop and search data
-### Stop and search data
 - Records police stop-and-search activity.  
 - Includes the date, location, reason for the search, demographics of the person stopped, and the outcome.  
 - Also shows whether the outcome was linked to the original reason for the search.  
@@ -54,60 +42,6 @@ Two public datasets from the [UK Police Data Portal](https://data.police.uk/data
 4. **Transform** – dbt prepares clean tables and builds a star schema for analysis.  
 5. **Analyze** – ClickHouse is used for fast queries across large volumes.  
 6. **Visualize** – Apache Superset presents dashboards and KPIs to answer key questions.  
-
----
-## Project structure
-```text
-.env
-docker-compose.yml
-airflow-docker/
-├── dags/
-└── scripts/
-data/
-├── 2025-07-cambridgeshire-stop-and-search_sample_data.csv
-└── 2025-07-cambridgeshire-streets_sample_data.csv
-dbt/
-├── models/
-|   ├── dbt_project.yml
-|   ├── profiles.yml
-|   ├── gold/
-|   |   └── ...
-|   ├── silver/
-|   |   └── ...
-|   └── sources/
-|       └── ...
-diagrams/
-└── ...
-docs/
-└── metadata.json
-images/
-└── ...
-minio/
-└── iceberg-policy.json
-sql/
-├── 01_create_bronze_tables.sql
-├── 02_make_iceberg_table_queriable.sql
-├── 03_star_schema.sql
-├── 04_analytical_queries.sql
-├── 05_create_roles.sql
-├── 06_create_views.sql
-├── 07_sample_query_limited.sql
-└── 08_sample_query_full.sql
-```
----
-
-# 2. Data warehouse implementation, ETL pipelines*
-#### * Project 2 updated to comply with changes made in Project 3.
-## Table of Contents
-- [Overview](#overview-1)
-- [Services](#services)
-- [Environment setup](#environment_setup)
-- [Airflow DAGs](#airflow-dags)
-- [Analytical queries](#analytical-queries)
-
----
-
-## Overview
 
 ---
 ## Project structure
@@ -188,7 +122,6 @@ The project includes a ready-to-run Docker Compose setup with the following serv
 - **Airflow Webserver** for monitoring and managing pipelines.
 - **Airflow Scheduler** to schedule and trigger DAGs.
 - **Postgres** serves as the Airflow metadata database.
-- **Postgres** serves as the Airflow metadata database.
 - **pgAdmin** for managing the Postgres database.
 - **ClickHouse** as the analytical warehouse.
 - **dbt** to transform data from the Bronze to the Gold layer.
@@ -213,8 +146,6 @@ git clone https://github.com/RobertI321/data_engineering_project.git
 ```bash
 cd "data_engineering_project"
 docker compose -f docker-compose.yaml -f docker-om-compose.yaml up --build -d
-cd "data_engineering_project"
-docker compose -f docker-compose.yaml -f docker-om-compose.yaml up --build -d
 ```
 **4. Connect to pgAdmin (optional)** and create a new server:
 1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
@@ -235,7 +166,6 @@ docker compose -f docker-compose.yaml -f docker-om-compose.yaml up --build -d
 or via Docker:
 
 ```bash
-docker exec -it clickhouse-server clickhouse-client
 docker exec -it clickhouse-server clickhouse-client
 ```
 2. Query data from ClickHouse Bronze layer:
@@ -271,12 +201,10 @@ The DAGs can be managed through the Airflow Web UI:
     - retrieves metadata (available months) via the API and downloads the corresponding montly data archive as zipped CSV files
     - scheduled to run monthly, as new data becomes available each month
     - loads the latest month's raw data into ClickHouse Bronze layer
-    - loads the latest month's raw data into ClickHouse Bronze layer
     - ensures idempotent loading - deletes existing data for a given month, and removes rows for the same month before reloading
     - executes dbt models using the newly loaded data, transforming it into the Silver and Gold layers in ClickHouse
     - runs dbt tests (validations, e.g., unique and not null constraints) to verify data quality
     - dbt tasks are dependent on loading data: all load tasks must be completed before dbt transformations start.
----
 ---
 
 ## Analytical queries

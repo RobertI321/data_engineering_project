@@ -39,4 +39,4 @@ else
   echo "WARNING: /sql/02_make_iceberg_table_queriable.sql not found"
 fi
 
-echo "ClickHouse initialization complete!"
+echo "Initialization complete. (created Bronze tables and Iceberg catalog database.)"
