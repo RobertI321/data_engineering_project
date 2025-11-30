@@ -209,7 +209,7 @@ The DAGs can be managed through the Airflow Web UI:
 
 ## Analytical queries
 
-Business questions from Project 1 are answered using data in the Gold layer. SQL queries are in project folder Phase 2/ClickHouse/queries.sql.
+Business questions from Project 1 are answered using data in the Gold layer. SQL queries are in project folder sql/queries.sql.
 
 1. Are some ethnic groups stopped more often than others?
 
