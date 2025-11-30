@@ -214,6 +214,11 @@ The DAGs can be managed through the Airflow Web UI:
     - executes dbt models using the newly loaded data, transforming it into the Silver and Gold layers in ClickHouse
     - runs dbt tests (validations, e.g., unique and not null constraints) to verify data quality
     - dbt tasks are dependent on loading data: all load tasks must be completed before dbt transformations start.
+
+-    **iceberg_crime_summary**:
+    - Reads raw crime data from ClickHouse and aggregates it into monthly crime counts.
+    - Converts the summarized data into a PyArrow table and writes it into an Iceberg table stored in MinIO.
+    - If the Iceberg table already exists, the DAG recreates it and appends the latest processed data.
 ---
 
 ## Analytical queries
@@ -315,7 +320,7 @@ SELECT *
 FROM iceberg.`bronze.crime_summary`
 LIMIT 10;
 ```
-![alt text](image.png)
+![alt text](images/iceberg_query.png)
 
 ---
 ## ClickHouse
