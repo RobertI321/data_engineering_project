@@ -20,3 +20,8 @@ TO analyst_full;
 
 GRANT SELECT ON ukpolice_gold.masked_analysis
 TO analyst_limited;
+
+/*
+GRANT SELECT ON ukpolice_gold.view_analysis_masked
+TO analyst_limited;
+*/
