@@ -48,9 +48,11 @@ Two public datasets from the [UK Police Data Portal](https://data.police.uk/data
 ```text
 .env
 docker-compose.yml
-airflow-docker/
+airflow/
 ├── dags/
 └── scripts/
+archive/
+└── ...
 data/
 ├── 2025-07-cambridgeshire-stop-and-search_sample_data.csv
 └── 2025-07-cambridgeshire-streets_sample_data.csv
@@ -81,6 +83,9 @@ sql/
 ├── 06_create_views.sql
 ├── 07_sample_query_limited.sql
 └── 08_sample_query_full.sql
+superset/
+├── Dockerfile.superset
+└── superset_config.py
 ```
 ---
 
@@ -125,6 +130,10 @@ The project includes a ready-to-run Docker Compose setup with the following serv
 - **pgAdmin** for managing the Postgres database.
 - **ClickHouse** as the analytical warehouse.
 - **dbt** to transform data from the Bronze to the Gold layer.
+- **MinIO** for storing Iceberg tables in an S3-compatible object store.
+- **Apache Iceberg** as the table format for versioned and ACID-compliant data storage.
+- **OpenMetadata** for cataloging data assets, lineage, and running data quality tests.
+- **Superset** for building and viewing analytical dashboards.
 ---
 
 ## Environment setup
