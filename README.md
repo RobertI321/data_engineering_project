@@ -145,7 +145,7 @@ git clone https://github.com/RobertI321/data_engineering_project.git
 > :warning: Make sure that Docker is running before starting the project.
 ```bash
 cd "data_engineering_project"
-docker compose -f docker-compose.yaml -f docker-om-compose.yaml up --build -d
+docker compose docker-compose.yaml --build -d
 ```
 **4. Connect to pgAdmin (optional)** and create a new server:
 1. Acces pgAdmin at [http://localhost:5050](http://localhost:5050)
@@ -448,6 +448,30 @@ This user sees the unmasked data. The query selects only some columns because th
 
 8. Add table and column descriptions
 
+**Example: Table description**
+![tabledescription](images/table_description.png)
+
+**Example: Fact table column descriptions**
+![factstopsearch1](images/fact_stop_search1.png)
+
+![factstopsearch2](images/fact_stop_search2.png)
+
+9. Add data quality tests
+
+#### **1. Not-Null Test (Fact Table Foreign Key)**
+Validates that every record in the fact table contains a non-null `LocationKey`, ensuring all events are linked to a location dimension record.
+![testnotnull](images/test_not_null.png)
+
+#### **2. Unique Test (Dimension Surrogate Key)**
+Ensures that the `LocationKey` column in the location dimension contains only unique values with no duplicates.
+![testunique](images/test_unique.png)
+
+#### **3. Additional Test — Holiday Indicator Validation**
+Checks that the `Holiday` column in the date dimension contains only valid indicator values (`0` or `1`).
+![testholiday](images/test_holiday.png)
+
+#### 4. **Test Execution Results**
+![test_results](images/tests_all.png)
 
 ---
 ## Apache Superset
