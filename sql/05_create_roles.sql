@@ -1,0 +1,27 @@
+-- create roles
+CREATE ROLE IF NOT EXISTS analyst_full;
+CREATE ROLE IF NOT EXISTS analyst_limited;
+
+-- create users
+CREATE USER IF NOT EXISTS full_user
+IDENTIFIED BY {full_pwd:String};
+
+CREATE USER IF NOT EXISTS limited_user
+IDENTIFIED BY {limited_pwd:String};
+
+
+-- give the users their roles
+GRANT analyst_full TO full_user;
+GRANT analyst_limited TO limited_user;
+
+-- give the users select rights on respective views
+GRANT SELECT ON ukpolice_gold.*
+TO analyst_full;
+
+GRANT SELECT ON ukpolice_gold.masked_analysis
+TO analyst_limited;
+
+/*
+GRANT SELECT ON ukpolice_gold.view_analysis_masked
+TO analyst_limited;
+*/

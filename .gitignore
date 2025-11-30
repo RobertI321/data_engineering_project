@@ -16,4 +16,4 @@ dbt/.user.yml
 **/docker-data/
 **/minio-data/
 **/clickhouse-data/
-
+**/docker-volume/

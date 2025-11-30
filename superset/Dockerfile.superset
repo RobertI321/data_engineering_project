@@ -1,0 +1,12 @@
+FROM apache/superset:3.1.1
+
+USER root
+
+RUN pip install --no-cache-dir \
+    clickhouse-connect==0.10.0 \
+    clickhouse-sqlalchemy==0.2.6
+
+COPY superset_config.py /app/superset_config.py
+RUN chown superset:superset /app/superset_config.py
+
+USER superset

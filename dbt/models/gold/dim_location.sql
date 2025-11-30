@@ -16,13 +16,16 @@ WITH combined AS (
     FROM {{ ref('stopsearch_clean') }}
 ),
 loc AS (
-    SELECT DISTINCT
-        LSOACode,
-        LSOAName,
-        LocationDescription,
+    SELECT
+        Latitude,
+        Longitude,
+        any(LSOACode)            AS LSOACode,
+        any(LSOAName)            AS LSOAName,
+        any(LocationDescription) AS LocationDescription
+    FROM combined
+    GROUP BY
         Latitude,
         Longitude
-    FROM combined
 )
 SELECT
     row_number() OVER (ORDER BY Latitude, Longitude) AS LocationKey,

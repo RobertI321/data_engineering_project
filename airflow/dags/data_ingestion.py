@@ -106,7 +106,7 @@ def extract_police_data(**ctx):
     r = requests.get(API_DATES)
     r.raise_for_status()
     latest_month = r.json()[0]["date"]      
-    latest_month = "2025-08" #  (replace latest month with "2025-08" do backfill the data for Aug 2025 and rerun the DAG)
+    #latest_month = "2025-08" #  (replace latest month with "2025-08" do backfill the data for Aug 2025 and rerun the DAG)
     print(f"Latest month: {latest_month}")
 
     # ClickHouse connection
