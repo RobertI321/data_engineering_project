@@ -292,7 +292,7 @@ Business questions from Project 1 are answered using data in the Gold layer. SQL
 ## Table of Contents
 - [Overview](#overview-2)
 - [Environment setup](#environment-setup-1)
-- [Apache Iceberg](#apache-iceberg)
+- [Querying Iceberg tables](#querying-iceberg-tables)
 - [Clickhouse](#clickhouse)
 - [OpenMetadata](#openmetadata)
 - [Apache Superset](#apache-superset)
