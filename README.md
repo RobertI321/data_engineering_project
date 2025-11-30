@@ -322,6 +322,7 @@ Get-Content .env | ForEach-Object {
             [System.Environment]::SetEnvironmentVariable($parts[0], $parts[1], "Process")
         }
     }
+}
 ```
 
 **2. Create full and limited-access roles and users, and grant access to users**
@@ -335,7 +336,7 @@ $sql = $sql -replace '\{limited_pwd:String\}', "'$env:CLICKHOUSE_PASSWORD_LIMITE
 
 Create roles and users, and grant access:
 ```bash
-$sql | docker exec -it clickhouse-server clickhouse-client
+$sql | docker exec -i clickhouse-server clickhouse-client --multiquery
 ```
 
 **3. Create a full view, and table with masked columns on top of the Gold layer tables**
@@ -348,7 +349,7 @@ docker exec -it clickhouse-server clickhouse-client --multiquery --queries-file=
 
 The limited-access user should not get any results when querying the Gold layer tables or the view that is meant for the full-acces role.
 
-**Login as limited-access user** (terminal asks for password):
+**Login as limited-access user**:
 ```bash
 docker exec -it clickhouse-server clickhouse-client -u limited_user --password $env:CLICKHOUSE_PASSWORD_LIMITED
 ```
@@ -385,7 +386,7 @@ FORMAT Pretty;
 Now, the user sees the query results. The columns Gender, EthnicityOfficer, and columns related to location are masked.
 
 
-**Login as full-access user** (terminal asks for password):
+**Login as full-access user**:
 ```bash
 docker exec -it clickhouse-server clickhouse-client -u full_user --password $env:CLICKHOUSE_PASSWORD_FULL
 ```
