@@ -167,7 +167,7 @@ docker compose docker-compose.yaml --build -d
 
 **5. Connect to Airflow UI:**
 1. Access Airflow at [http://localhost:8080](http://localhost:8080)
-2. To ingest raw data into the staging layer in ClickHouse, run the DAG **police_data_ingestion**.
+2. To initiate the ETL process, run the DAG **police_data_ingestion**.
 3. To create Iceberg table, run the DAG **iceberg_crime_summary**.
 
 **6. Connect to ClickHouse:**
@@ -215,10 +215,14 @@ The DAGs can be managed through the Airflow Web UI:
     - runs dbt tests (validations, e.g., unique and not null constraints) to verify data quality
     - dbt tasks are dependent on loading data: all load tasks must be completed before dbt transformations start.
 
+    ![dag_model1](images/dag_model1.png)
+
 -    **iceberg_crime_summary**:
     - Reads raw crime data from ClickHouse and aggregates it into monthly crime counts.
     - Converts the summarized data into a PyArrow table and writes it into an Iceberg table stored in MinIO.
     - If the Iceberg table already exists, the DAG recreates it and appends the latest processed data.
+
+
 ---
 
 ## Analytical queries
@@ -306,11 +310,9 @@ At first, make sure you have followed the steps provided in the previous [enviro
 
 **2. Using MinIO UI**:
     Minio setup is automated via scripts. In case the scripts should fail, log in and create "iceberg-bucket" manually:
-    username: minioadmin
-    password: minioadmin
 
+- Login: http://localhost:9001
 
-....
 
 ---
 ## Querying Iceberg tables
